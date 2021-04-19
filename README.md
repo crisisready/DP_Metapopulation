@@ -8,7 +8,7 @@ https://github.com/SenPei-CU/COVID-19 into the [R language](https://www.r-projec
 The purpose of this repository is to create a standard model which produces
 known outputs and vary the input human mobility data. These data will be processed
 using varying differential privacy settings and produce epidemiologic metrics
-of interest. 
+of interest.
 
 ## Inputs
 Standard inputs will eventually be stored in `init/*.yaml`, currently all parameters
@@ -25,3 +25,7 @@ transition data.
 - measures of the incubation period
 - epidemic size
 - number of locations with epidemic
+
+## Organization
+- `init`: Contains the parameter files
+- `src`: Contains all code files
