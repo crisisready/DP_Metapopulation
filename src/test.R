@@ -1,7 +1,7 @@
 # load function
 library(here)
 
-source(here('code','spatial_seir', 'spatial_seir.R'))
+source(here('src', 'spatial_seir.R'))
 
 #initialize
 num_loc = 500 # number of locations
