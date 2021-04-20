@@ -27,5 +27,63 @@ transition data.
 - number of locations with epidemic
 
 ## Organization
+The Python command line and the R files are in the same top-level directory, currently. This may change in the future, as necessary.
+
 - `init`: Contains the parameter files
 - `src`: Contains all code files
+
+- `Makefile`: Simplifies calling certain commands
+    - `make test`: Will run test (currently Python-only)
+    - `make build`: Will use [poetry](https://python-poetry.com) to get dependencies
+
+## Python CLI
+
+### Requirements
+
+To run and test the CLI, you will need [poetry](https://python-poetry.com) as a dependency manager. To install poetry, run
+
+```bash
+$ pip install --user poetry
+$ poetry -v   # Run this to confirm installation
+```
+
+Installing the dependencies can be done through `make build`. This currently just runs `poetry install`. The current dependencies are on Pandas, Numpy, Typer, and the OpenDP libraries. 
+
+Running `poetry build`/`make build` will create a Python virtual environment. All further python commands should be prefaced with `poetry run` in the directory that has `pyproject.toml` and `poetry.lock` in it.
+
+### Command Line
+
+The Python CLI code is in `metapopulation.py`. It usees [Typer](https://typer.tiangolo.com/) to set up the command line structure, which has two subcommands. Running the command can be done through:
+
+```bash
+$ poetry run python metapopulation.py --help  # This will show you help for the command
+```
+
+#### simulate Subcommand
+
+The simulation is run by executing:
+
+```bash
+$ poetry run python metapopulation.py simulate \
+    [--fips state fips] \        # The state FIPS to filter down to, default to NY
+    [--iterations count] \       # The number of noisy iterations to run
+    [--start-date YYYY-MM-DD]  \ # The start date filter by, inclusive
+    [--end-date YYYY-MM-DD]  \   # The end date filter by, exclusive
+    [local data path] 
+```
+
+The `local data path` is the location on your own machine that houses the data. The subdirectories where the data should be stored be of the form `activity_day=YYYY-MM-DD`, matching the data sets as they are stored in Google Cloud Platform. See the `tests/data` directory for an example layout.
+
+
+#### pull Subcommand
+
+This is *not* implemented, but it will eventually extract from Google Cloud Platform.
+
+
+### Testing
+
+The code uses [pytest](https://pytest.org) for its test infrastructure. Any functions named `test_` in files named `test_` in the `tests` directory will be executed. (That's a real sentence.)
+
+For unit tests, primarily test the reasonability of outputs on small data sets, not necessarily the full statistics. If there is a separate, long-running test that is needed to validate data sanity, create a script for that and run it independently.
+
+Note: Automated CI through GitHub Actions is not set up yet.
