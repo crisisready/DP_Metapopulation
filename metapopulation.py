@@ -12,22 +12,30 @@ DEFAULT_ITERATIONS = 100
 app = typer.Typer()
 
 
-def load(data_dir: str, fips: str, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+def load(
+    data_dir: str, fips: str, start_date: datetime, end_date: datetime
+) -> pd.DataFrame:
     """
     Reads data from the data directory, assuming that the format is a bunch of subdirectories
     in the form `activity_day=%Y-%m-%d` which will be converted to a Python date in the resulting
     data frame.
     """
+    typer.echo(f"Reading data from {data_dir}")
     df = pd.read_parquet(data_dir)
     # Filter first, then convert to save some compute.
+    # This cases activity_day to string, but it *may* be faster to convert to a list of
+    # categories that match the dates.
     if start_date:
         str_start_date = start_date.strftime("%Y-%m-%d")
-        df.drop(df[df["activity_day"] >= str_start_date].index, inplace=True)
+        typer.echo(f"Filtering start date after {str_start_date}")
+        df.drop(df[df["activity_day"].astype(str) < str_start_date].index, inplace=True)
     if end_date:
         str_end_date = end_date.strftime("%Y-%m-%d")
-        df.drop(df[df["activity_day"] < str_end_date].index, inplace=True)
+        typer.echo(f"Filtering start date strictly before {str_end_date}")
+        df.drop(df[df["activity_day"].astype(str) >= str_end_date].index, inplace=True)
+    typer.echo("Filtering by state")
     df.drop(
-        ((df["from_state_fips"] == fips) | (df["to_state_fips"] == fips)).index,
+        df[(df["from_state_fips"] != fips) & (df["to_state_fips"] != fips)].index,
         inplace=True,
     )
     df["activity_day"] = df["activity_day"].apply(

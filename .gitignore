@@ -38,8 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# Python virtual environment
+# Python virtual environment and cache
 .venv
+**/__pycache__
 
 # Visual Studio Code configuration
 .vscode
