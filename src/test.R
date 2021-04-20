@@ -60,7 +60,7 @@ x[Zidx] = 3.6      # average latency period
 x[alphaidx] = 0.65 # fraction of documented (or symptomatic) infections
 x[Didx] = 3.14     # average duration of infection
 
-num_tsteps = 30
+num_tsteps = 60
 x.save <- matrix(NA, nrow = length(x), ncol = num_tsteps+1)
 pop.save <- matrix(NA, nrow = length(pop), ncol = num_tsteps+1)
 
