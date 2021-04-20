@@ -34,13 +34,13 @@ The Python command line and the R files are in the same top-level directory, cur
 
 - `Makefile`: Simplifies calling certain commands
     - `make test`: Will run test (currently Python-only)
-    - `make build`: Will use [poetry](https://python-poetry.com) to get dependencies
+    - `make build`: Will use [poetry](https://python-poetry.org) to get dependencies
 
 ## Python CLI
 
 ### Requirements
 
-To run and test the CLI, you will need [poetry](https://python-poetry.com) as a dependency manager. To install poetry, run
+To run and test the CLI, you will need [poetry](https://python-poetry.org) as a dependency manager. To install poetry, run
 
 ```bash
 $ pip install --user poetry
@@ -53,7 +53,7 @@ Running `poetry build`/`make build` will create a Python virtual environment. Al
 
 ### Command Line
 
-The Python CLI code is in `metapopulation.py`. It usees [Typer](https://typer.tiangolo.com/) to set up the command line structure, which has two subcommands. Running the command can be done through:
+The Python CLI code is in `metapopulation.py`. It uses [Typer](https://typer.tiangolo.com/) to set up the command line structure, which has two subcommands. Running the command can be done through:
 
 ```bash
 $ poetry run python metapopulation.py --help  # This will show you help for the command
