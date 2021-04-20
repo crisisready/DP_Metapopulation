@@ -45,8 +45,10 @@ def load(
 
 
 def call_r_model(df: pd.DataFrame, iterations: int):
-    with typer.progressbar(range(iterations)):
-        time.sleep(0.05)
+    typer.echo(f"Calling R model over {iterations}")
+    with typer.progressbar(range(iterations)) as steps:
+        for _ in steps:
+            time.sleep(0.05)
 
 
 @app.command()
