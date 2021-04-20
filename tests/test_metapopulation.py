@@ -39,3 +39,14 @@ def test_filter_by_fips():
         ].size
         == 0  # noqa: W503
     )
+
+
+def test_filter_by_nondefault_fips():
+    df = mp.load(DATA_DIR, fips="13", start_date=None, end_date=None)
+    assert (
+        df[
+            (df["to_state_fips"] != "13")
+            & (df["from_state_fips"] != "13")  # noqa: W503
+        ].size
+        == 0  # noqa: W503
+    )
