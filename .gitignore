@@ -41,3 +41,5 @@ vignettes/*.pdf
 # personal local files and sandbox
 resources/auth.yaml
 src/sandbox.R
+_pycache_/*
+tests/*
