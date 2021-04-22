@@ -1,17 +1,40 @@
+#### Create list of matrices from Camber query
+adjust_Camber_transitions <- function(data){
+  # pull unique dates 
+  dates <- unique(data$activity_day) %>% sort()
+  
+  # pull unique fips 
+  fips <- c(data$from_fips, data$to_fips) %>% unique()
+  
+  #rescale Camber values 
+  rescale_values <- read.csv("../resources/camber_pop_rescale.csv") %>%
+    as_tibble() %>%
+    mutate(from_fips = as.character(from_fips))
+  
+  rescaled_data <- data %>%
+    left_join(rescale_values, by = "from_fips") %>% 
+    mutate(transitions = round(transitions * rescale, 0)) %>%
+    dplyr::select(activity_day, from_fips, to_fips, transitions)
+  
+  #create list of transition matrices
+  M <- lapply(dates, function(x) convertToMatrix(dat = rescaled_data, day = x))
+  
+  return(M)
+}
+
 #### function that converts the long format from Camber data to a matrix ####
 convertToMatrix <- function(dat, day) {
   tmp <- dat %>% filter(activity_day == as.Date(day)) %>%
     mutate(from_fips = as.character(from_fips), to_fips = as.character(to_fips)) %>%
     dplyr::select(from_fips, to_fips, transitions) %>%
     arrange(from_fips, to_fips) %>%
-    filter(!is.na(from_fips), !is.na(to_fips)) %>%
-    group_by(from_fips, to_fips) %>%
-    summarize(Count = sum(Count, na.rm = TRUE))
+    filter(!is.na(from_fips), !is.na(to_fips))
 
   tmp$transitions[is.na(tmp$transitions)] <- 0
 
   mat = acast(tmp[, c("from_fips", "to_fips", "transitions")], from_fips~to_fips)
   diag(mat) = 0
+  mat[is.na(mat)] <- 0
 
   return(mat)
 }
