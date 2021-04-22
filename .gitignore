@@ -37,3 +37,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# personal local files and sandbox
+resources/auth.yaml
+src/sandbox.R
