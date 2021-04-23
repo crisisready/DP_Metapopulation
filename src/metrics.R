@@ -7,7 +7,7 @@ R0 <-function(parms){
      cat("R0 = ", R0, "\n")
 }
 #or
-R0 <- x[alphaidx]*x[betaidx]*x[Didx] + (1 - x[alphaidx])*x[muidx]*x[betaidx]*x[Didx]
+#R0 <- x[alphaidx]*x[betaidx]*x[Didx] + (1 - x[alphaidx])*x[muidx]*x[betaidx]*x[Didx]
 # Re
 Re<- function(R0, x, N){
      x = tail(x,n=1) / N 
@@ -15,4 +15,4 @@ Re<- function(R0, x, N){
      cat("Re = ", Re, "\n")
    }
 #or 
-Re <- R0* tail(x[Sidx], n = 1) /  tail (pop, n = 1)
+#Re <- R0* tail(x[Sidx], n = 1) /  tail (pop, n = 1)
