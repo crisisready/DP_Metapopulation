@@ -41,3 +41,4 @@ rescaled_data <- data %>%
 #create list of transition matrices
 M <- lapply(dates, function(x) convertToMatrix(dat = rescaled_data, day = x))
 
+write_rds(M, "../resources/test_matrices.rds")
