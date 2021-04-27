@@ -1,0 +1,19 @@
+Database:
+  mobility:
+    activity:
+      row_privacy: False
+      rows: 4766
+      clamp_counts: False
+      from_fips:
+        type: string
+      to_fips:
+        type: string
+      transitions:
+        type: int
+        lower: 0
+        upper: 58455
+      activity_day:
+        type: string
+      uuid:
+        type: string
+        private_id: True
