@@ -1,7 +1,7 @@
 # Reproduction numbers
 
 source(here("src", "NY_model.R"))
-source(here("src", "spatial_seir.R"))
+
 x <- run_seir_model()
 
 # R0
