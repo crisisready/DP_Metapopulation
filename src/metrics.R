@@ -1,4 +1,34 @@
-# Reproduction numbers
+# script for master metrics function along with all metrics 
+
+run_metrics <- function(x){
+   
+   #epidemic size
+   epi_size <- calc_epidemic_size(x)
+   
+   #output formatted as a tibble
+   return(
+      tibble(
+         "mob_mat" = x$M_loc, 
+         "obs_epi_size" = epi_size$obs, 
+         "sym_epi_size" = epi_size$sym, 
+         "asym_epi_size" = epi_size$asym
+      )
+   )
+   
+}
+
+#calculate epidemic size
+calc_epidemic_size <- function(x){
+   obs_epi_size <- x$compartments[x$obsidx,] %>% rowSums() %>% sum()
+   sym_epi_size <- x$compartments[x$Isidx,] %>% rowSums() %>% sum()
+   asym_epi_size <- x$compartments[x$Iaidx,] %>% rowSums() %>% sum()
+   
+   return(list(
+      "obs" = obs_epi_size, 
+      "sym" = sym_epi_size,
+      "asym" = asym_epi_size
+   ))
+}
 
 
 # R0
