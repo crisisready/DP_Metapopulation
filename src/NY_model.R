@@ -6,7 +6,7 @@ source(here('src', 'spatial_seir.R'))
 
 run_seir_model <- function(
   census_pop = read_rds("../resources/nyc_census_data.rds"), 
-  M = read_rds("../resources/test_matrices.rds"),
+  M_loc = "../resources/test_matrices.rds",
   seedid = c(24,41),
   num_tsteps = 60,
   beta = 0.8, #0.52 # transmission rate due to symptomatic individuals
@@ -18,6 +18,9 @@ run_seir_model <- function(
 ){
   #initialize
   num_loc = nrow(census_pop) # number of locations
+  
+  #transition matrix 
+  M <- read_rds(M_loc)
   
   # indices for each compartment + fixed parameters
   Sidx = seq(from =1, to = 5*num_loc, by = 5)
@@ -80,7 +83,19 @@ run_seir_model <- function(
               "theta" = theta, 
               "zeta" = zeta, 
               "alpha" = alpha, 
-              "delta" = delta))
+              "delta" = delta, 
+              "Sidx" = seq(from =1, to = 5*num_loc, by = 5),
+              "Eidx" = seq(from =2, to = 5*num_loc, by = 5),
+              "Isidx" = seq(from =3, to = 5*num_loc, by = 5),
+              "Iaidx" = seq(from =4, to = 5*num_loc, by = 5),
+              "obsidx" = seq(from =5, to = 5*num_loc, by = 5),
+              "betaidx" = 5*num_loc + 1,
+              "muidx" = 5*num_loc + 2,
+              "thetaidx" = 5*num_loc + 3,
+              "Zidx" = 5*num_loc + 4,
+              "alphaidx" = 5*num_loc + 5,
+              "Didx" = 5*num_loc + 6, 
+              "M_loc" = M_loc))
   
 }
 
