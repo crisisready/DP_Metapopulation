@@ -4,8 +4,11 @@ import time
 import pandas as pd
 import typer
 
+import subprocess
+import numpy as np
+import random
 
-DEFAULT_DATA_DIRECTORY = "./data"
+DEFAULT_DATA_DIRECTORY = "./tests/data"
 DEFAULT_FIPS = "36"  # New York
 DEFAULT_ITERATIONS = 100
 
@@ -35,7 +38,7 @@ def load(
         df.drop(df[df["activity_day"].astype(str) >= str_end_date].index, inplace=True)
     typer.echo("Filtering by state")
     df.drop(
-        df[(df["from_state_fips"] != fips) & (df["to_state_fips"] != fips)].index,
+        df[(df["from_state_fips"] != fips) | (df["to_state_fips"] != fips)].index,
         inplace=True,
     )
     df["activity_day"] = df["activity_day"].apply(
@@ -43,11 +46,25 @@ def load(
     )
     return df
 
+def noisy_df(df: pd.DataFrame, iterations: int = 100):
+    
+    dlen = len(df)
+    n = []
+    typer.echo(f"Applying DP noise on columns over {iterations} iterations")
+    with typer.progressbar(range(iterations)) as steps:
+        for _ in steps:
+          noisy_val = df.transitions.values*random.random()
+          n = np.vstack(noisy_val)
+        m = np.average(n, axis=0)
+        df['transitions']=pd.Series(m)
+        return df
 
 def call_r_model(df: pd.DataFrame, iterations: int):
+    
     typer.echo(f"Calling R model over {iterations}")
     with typer.progressbar(range(iterations)) as steps:
         for _ in steps:
+            subprocess.call (["Rscript", "--vanilla", "./src/spatial_seir.R"])
             time.sleep(0.05)
 
 
@@ -115,6 +132,7 @@ def simulate(
     If no start or end dates are specified, it will use the whole directory
     """
     df = load(data_path, fips, start_date, end_date)
+    df = noisy_df(df, iterations)
     call_r_model(df, iterations)
 
 
