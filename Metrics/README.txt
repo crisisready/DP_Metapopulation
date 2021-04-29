@@ -1,1 +1,0 @@
-some function are created to compute the reporduction number and other metrics
