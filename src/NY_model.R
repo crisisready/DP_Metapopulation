@@ -5,8 +5,8 @@ library(tidyverse)
 source(here('src', 'spatial_seir.R'))
 
 run_seir_model <- function(
-  census_pop = read_rds("../resources/nyc_census_data.rds"), 
-  M_loc = "../resources/test_matrices.rds",
+  census_pop = read_rds(here("resources", "nyc_census_data.rds")), 
+  M_loc = here("resources", "test_matrices.rds"),
   seedid = c(24,41),
   num_tsteps = 60,
   beta = 0.8, #0.52 # transmission rate due to symptomatic individuals
