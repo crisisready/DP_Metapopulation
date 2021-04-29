@@ -64,8 +64,12 @@ def call_r_model(df: pd.DataFrame, iterations: int):
     typer.echo(f"Calling R model over {iterations}")
     with typer.progressbar(range(iterations)) as steps:
         for _ in steps:
-            subprocess.call (["Rscript", "--vanilla", "./src/spatial_seir.R"])
-            time.sleep(0.05)
+            try:
+                subprocess.call (["Rscript", "--vanilla", "./src/spatial_seir.R"])
+            except Exception as e:
+                print(e)
+                exit(1)
+        time.sleep(0.05)
 
 
 @app.command()
