@@ -45,5 +45,6 @@ lib_eval <- function(package){
 sapply(c("tidyverse","reshape2", "here", "bigrquery"), lib_eval)
 
 #load local packages
-source(here("src", "spatial_seir.R"))
+source(here("src", "NY_model.R"))
+source(here("src", "metrics.R"))
 source(here("src", "utils.R"))
