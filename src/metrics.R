@@ -4,14 +4,18 @@ run_metrics <- function(x){
    
    #epidemic size
    epi_size <- calc_epidemic_size(x)
-   
+   Rep_number<- Rep_numb(x)
    #output formatted as a tibble
    return(
-      tibble(
-         "mob_mat" = x$M_loc, 
-         "obs_epi_size" = epi_size$obs, 
-         "sym_epi_size" = epi_size$sym, 
-         "asym_epi_size" = epi_size$asym
+      list(
+         "static_metrics" =       tibble(
+            "mob_mat" = x$M_loc, 
+            "obs_epi_size" = epi_size$obs, 
+            "sym_epi_size" = epi_size$sym, 
+            "asym_epi_size" = epi_size$asym,
+            "R0" = Rep_number$R0
+         ), 
+         "Re" = Rep_number$Re
       )
    )
    
@@ -31,18 +35,15 @@ calc_epidemic_size <- function(x){
 }
 
 
-# R0
-R0 <-function(parms){
-     R0 = unlist(parms[1])*unlist(parms[2])*unlist(parms[3]) + (1 - unlist(parms[1]))*unlist(parms[4])*unlist(parms[2])*unlist(parms[3])
-     cat("R0 = ", R0, "\n")
+# Reproduction numbers 
+
+Rep_numb <-function(x){
+   R0 = x$alpha * x$beta * x$delta + (1 - x$alpha) * x$mu * x$beta * x$delta
+   Re = R0*tail(x$compartments[x$Sidx,], n = 1) / tail( x$pop, n = 1)
+   return(list(
+      "R0" = R0, 
+      "Re" = c(Re)
+   ))
+   
 }
-#or
-#R0 <- x[alphaidx]*x[betaidx]*x[Didx] + (1 - x[alphaidx])*x[muidx]*x[betaidx]*x[Didx]
-# Re
-Re<- function(R0, x, N){
-     x = tail(x,n=1) / N 
-     Re = R0*x
-     cat("Re = ", Re, "\n")
-   }
-#or 
-#Re <- R0* tail(x[Sidx], n = 1) /  tail (pop, n = 1)
+
