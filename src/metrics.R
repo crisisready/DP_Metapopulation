@@ -11,6 +11,9 @@ run_metrics <- function(x){
    #rate of spread
    ros <- rate_of_spread(x)
    
+   #prop counties with at least 1 case
+   prop_c_1_case <- prop_counties_1_case(x)
+   
    #output formatted as a tibble
    return(
       list(
@@ -20,7 +23,8 @@ run_metrics <- function(x){
             "sym_epi_size" = epi_size$sym, 
             "asym_epi_size" = epi_size$asym,
             "R0" = Rep_number$R0, 
-            "rate_of_spread" = ros
+            "rate_of_spread" = ros, 
+            "prop_counties_1_case" = prop_c_1_case
          ), 
          "Re" = Rep_number$Re
       )
@@ -77,3 +81,9 @@ rate_of_spread <- function(x){
       return()
 }
 
+#proportion of counties with at least 1 case
+prop_counties_1_case <- function(x){
+   ((x$compartments[x$obsidx,] %>%
+        rowSums()) > 0) %>% mean() %>%
+      return()
+}
