@@ -11,6 +11,12 @@ run_metrics <- function(x){
    #rate of spread
    ros <- rate_of_spread(x)
    
+   #prop counties with at least 1 case
+   prop_c_1_case <- prop_counties_1_case(x)
+   
+   #peak epidemic day and size
+   peak_epi <- peak_epi_day_size(x)
+   
    #output formatted as a tibble
    return(
       list(
@@ -20,7 +26,10 @@ run_metrics <- function(x){
             "sym_epi_size" = epi_size$sym, 
             "asym_epi_size" = epi_size$asym,
             "R0" = Rep_number$R0, 
-            "rate_of_spread" = ros
+            "rate_of_spread" = ros, 
+            "prop_counties_1_case" = prop_c_1_case, 
+            "peak_epi_day" = peak_epi$peak_epi_day, 
+            "peak_epi_size" = peak_epi$peak_epi_size
          ), 
          "Re" = Rep_number$Re
       )
@@ -77,3 +86,38 @@ rate_of_spread <- function(x){
       return()
 }
 
+#proportion of counties with at least 1 case
+prop_counties_1_case <- function(x){
+   ((x$compartments[x$obsidx,] %>%
+        rowSums()) > 0) %>% mean() %>%
+      return()
+}
+
+#average time of peak of the epidemic
+peak_epi_day_size <- function(x){
+   y <- x$compartments[x$obsidx,]
+   colnames(y) <- 1:61
+   
+   a <- y %>%
+      as_tibble() %>%
+      mutate(location = row_number()) %>%
+      gather("day", "value", `1`:`61`) %>%
+      group_by(location) %>%
+      mutate(flag = (value == max(value) & value != 0)) %>%
+      filter(flag) %>%
+      ungroup() %>%
+      mutate(day = as.integer(day))
+   
+   peak_day <- a %>%
+      summarise(avg_peak_day = mean(day)) %>%
+      pull(avg_peak_day)
+   
+   peak_size <- a %>%
+      summarise(avg_peak_size = mean(value)) %>%
+      pull(avg_peak_size)
+   
+   return(list(
+      "peak_epi_day" = peak_day, 
+      "peak_epi_size" = peak_size
+   ))
+}
