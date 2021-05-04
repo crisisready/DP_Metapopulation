@@ -95,7 +95,8 @@ run_seir_model <- function(
               "Zidx" = 5*num_loc + 4,
               "alphaidx" = 5*num_loc + 5,
               "Didx" = 5*num_loc + 6, 
-              "M_loc" = M_loc))
+              "M_loc" = M_loc,
+              "M_trans" = M ))
   
 }
 

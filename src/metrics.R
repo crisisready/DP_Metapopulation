@@ -17,6 +17,9 @@ run_metrics <- function(x){
    #peak epidemic day and size
    peak_epi <- peak_epi_day_size(x)
    
+   #importation rate
+   import <- import_rate(x)
+   
    #output formatted as a tibble
    return(
       list(
@@ -31,7 +34,8 @@ run_metrics <- function(x){
             "peak_epi_day" = peak_epi$peak_epi_day, 
             "peak_epi_size" = peak_epi$peak_epi_size
          ), 
-         "Re" = Rep_number$Re
+         "Re" = Rep_number$Re,
+         "Mean_import_rate" = import
       )
    )
    
@@ -121,3 +125,15 @@ peak_epi_day_size <- function(x){
       "peak_epi_size" = peak_size
    ))
 }
+
+# Importation rate for each pair of county and for each time step
+import_rate<-function(x){
+   y <- lapply(x$M_trans, function(x) x/ifelse(rowSums(x)==0,1,rowSums(x)))
+   prop_inf <- x$compartments[x$obsidx,] /x$pop 
+   import_rate <- lapply(1:60, function(x) y[[x]] * prop_inf[,x+1] * 1000000)
+   total_import_rate<-sapply(import_rate, function(x)rowSums(x)) 
+   total_import_rate%>%
+      tibble()%>%
+      summarise(mean_imp = apply(total_import_rate, 1, function (x) mean(x)))%>%
+      return()
+   }
