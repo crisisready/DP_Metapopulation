@@ -37,4 +37,4 @@ The model is written in a modular way. Therefore, each of the section depend on 
 - `source(here("src", "dependencies.R"))`
 - `source(here("src", "NY_model.R"))`
 - `source(here("src", "metrics.R"))`
-- `run_seir_model() %>%   run_metrics() # Insert here your new data sets and parameters` 
+- `x <- run_seir_model() %>%   run_metrics() # Insert here your new data sets and parameters` 
