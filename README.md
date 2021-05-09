@@ -25,7 +25,16 @@ transition data.
 - measures of the incubation period
 - epidemic size
 - number of locations with epidemic
+- etc.
 
 ## Organization
 - `init`: Contains the parameter files
 - `src`: Contains all code files
+
+##Reproducibility of the model 
+The execution of the model is modular and each of the section depend on the previews on. For replicability do use this following process
+- Clone the Github repository and from the repository open one of the R files 
+- `source(here("src", "dependencies.R"))`
+- `source(here("src", "NY_model.R"))`
+- `source(here("src", "metrics.R"))`
+- `run_seir_model() %>%   run_metrics() # Insert here your news data sets and parameters` 
