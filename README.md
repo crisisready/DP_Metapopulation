@@ -32,6 +32,7 @@ transition data.
 - `src`: Contains all code files
 
 ##Reproducibility of the model 
+
 The execution of the model is modular and each of the section depend on the previews on. For replicability do use this following process
 - Clone the Github repository and from the repository open one of the R files 
 - `source(here("src", "dependencies.R"))`
