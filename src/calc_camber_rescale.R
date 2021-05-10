@@ -12,7 +12,7 @@ query <- "with tmp as (select activity_day,
 concat(from_state_fips, from_county_fips) as from_fips,
 concat(to_state_fips, to_county_fips) as to_fips, transitions,
 from `hangar-covid-19.camber_covid_aggregations.county_modal_matrix_v4`
-where from_state_fips = '36' and to_state_fips = '36' and activity_day >= '2020-09-01' and activity_day <= '2020-11-01')
+where from_state_fips = '36' and to_state_fips = '36' and activity_day >= '2020-08-15' and activity_day <= '2020-11-15')
 select activity_day, from_fips, to_fips, avg(transitions) as transitions from tmp group by activity_day, from_fips, to_fips"
 
 # pull data
@@ -45,7 +45,7 @@ rescale_value <- data %>%
   rename("from_fips" = "to_fips") %>%
   mutate(rescale = acs_pop / pop)
 
-write.csv(rescale_value,"../resources/camber_pop_rescale.csv", row.names = F)
+write.csv(rescale_value,"./resources/camber_pop_rescale.csv", row.names = F)
 
 
 

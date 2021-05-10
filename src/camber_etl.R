@@ -13,7 +13,7 @@ query <- "with tmp as (select activity_day,
 concat(from_state_fips, from_county_fips) as from_fips,
 concat(to_state_fips, to_county_fips) as to_fips, transitions,
 from `hangar-covid-19.camber_covid_aggregations.county_modal_matrix_v4`
-where from_state_fips = '36' and to_state_fips = '36' and activity_day >= '2020-09-01' and activity_day <= '2020-11-01')
+where from_state_fips = '36' and to_state_fips = '36' and activity_day >= '2020-08-15' and activity_day <= '2020-11-15')
 select activity_day, from_fips, to_fips, avg(transitions) as transitions from tmp group by activity_day, from_fips, to_fips"
 
 # pull data
@@ -29,7 +29,7 @@ dates <- unique(data$activity_day) %>% sort()
 fips <- c(data$from_fips, data$to_fips) %>% unique()
 
 #rescale Camber values 
-rescale_values <- read.csv("../resources/camber_pop_rescale.csv") %>%
+rescale_values <- read.csv("./resources/camber_pop_rescale.csv") %>%
   as_tibble() %>%
   mutate(from_fips = as.character(from_fips))
 
@@ -41,4 +41,4 @@ rescaled_data <- data %>%
 #create list of transition matrices
 M <- lapply(dates, function(x) convertToMatrix(dat = rescaled_data, day = x))
 
-write_rds(M, "../resources/test_matrices.rds")
+write_rds(M, "./resources/test_matrices.rds")
