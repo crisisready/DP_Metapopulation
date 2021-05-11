@@ -100,12 +100,12 @@ prop_counties_1_case <- function(x){
 #average time of peak of the epidemic
 peak_epi_day_size <- function(x){
    y <- x$compartments[x$obsidx,]
-   colnames(y) <- 1:61
+   colnames(y) <- 1:91
    
    a <- y %>%
       as_tibble() %>%
       mutate(location = row_number()) %>%
-      gather("day", "value", `1`:`61`) %>%
+      gather("day", "value", `1`:`91`) %>%
       group_by(location) %>%
       mutate(flag = (value == max(value) & value != 0)) %>%
       filter(flag) %>%
