@@ -1,0 +1,20 @@
+Collection:  
+  mobility:
+    transitions:
+      rows: 4766
+      row_privacy: False
+      max_ids: 6
+      sample_max_ids: True
+      clamp_counts: True
+      from_fips:
+        type: string
+      to_fips:
+        type: string
+      uuid:
+        type: string   
+      transitions:
+        type: int        
+        lower:  0
+        upper: 60000
+      activity_day:
+        type: datetime
