@@ -17,6 +17,9 @@ run_metrics <- function(x){
    #peak epidemic day and size
    peak_epi <- peak_epi_day_size(x)
    
+   #exposure window
+   exposure <- exposure_window(x)
+   
    #importation rate
    import <- import_rate(x)
    
@@ -32,7 +35,10 @@ run_metrics <- function(x){
             "rate_of_spread" = ros, 
             "prop_counties_1_case" = prop_c_1_case, 
             "peak_epi_day" = peak_epi$peak_epi_day, 
-            "peak_epi_size" = peak_epi$peak_epi_size
+            "peak_epi_size" = peak_epi$peak_epi_size,
+            "max_exposure_from_last_case" = exposure$max_exposure_from_last_case,
+            "min_exposure_from_first_case" = exposure$min_exposure_from_first_case,
+            "avg_exposure_from_peak" = exposure$avg_exposure_from_peak
          ), 
          "Re" = Rep_number$Re,
          "Mean_import_rate" = import
@@ -124,6 +130,42 @@ peak_epi_day_size <- function(x){
       "peak_epi_day" = peak_day, 
       "peak_epi_size" = peak_size
    ))
+}
+
+# mean exposure window of the epidemic
+
+exposure_window <- function(x){
+   y <- x$compartments[x$obsidx,]
+   colnames(y) <- 1:91
+   
+   a <- y %>%
+      as_tibble() %>%
+      mutate(location = row_number()) %>%
+      gather("day", "value", `1`:`91`) %>%
+      group_by(location) %>%
+      filter(value > 0) %>%
+      summarise(min_day = min(day), max_day = max(day), peak_day = tail(day[which.max(value)])) %>%
+      mutate(min_day = as.integer(min_day), max_day = as.integer(max_day), peak_day = as.integer(peak_day), min_incubation = as.integer(min_day - 2), max_incubation = as.integer(max_day - 14), avg_incubation = as.integer(peak_day - 5), flag = (min_day != max_day))  %>%
+      filter(flag)
+   
+   min_exposure_from_first_case <- a %>%
+      summarise(mean(min_incubation)) %>%
+      pull()
+   
+   max_exposure_from_last_case <- a %>%
+      summarise(mean(max_incubation)) %>%
+      pull()
+   
+   avg_exposure_from_peak <- a %>%
+      summarise(mean(avg_incubation)) %>%
+      pull()
+   
+   return(list(
+      "min_exposure_from_first_case" = min_exposure_from_first_case,
+      "max_exposure_from_last_case" = max_exposure_from_last_case,
+      "avg_exposure_from_peak" = avg_exposure_from_peak
+   ))
+   
 }
 
 # Importation rate for each pair of county and for each time step
