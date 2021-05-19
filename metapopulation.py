@@ -13,6 +13,9 @@ import noise_mechanism as nm
 DEFAULT_DATA_DIRECTORY = "./tests/data"
 DEFAULT_FIPS = "36"  # New York
 DEFAULT_ITERATIONS = 100
+DEFAULT_MECHANISM = "laplace"
+DEFAULT_EPSILON = 0.1
+DEFAULT_DELTA = 1
 
 app = typer.Typer()
 
@@ -48,7 +51,7 @@ def load(
     )
     return df
 
-def noisy_df(df: pd.DataFrame, iterations: int = 100, mechanism: str = "laplace", epsilon: int = 0.1):
+def noisy_df(df: pd.DataFrame, iterations: int = DEFAULT_ITERATIONS, mechanism: str = DEFAULT_MECHANISM, epsilon: int = DEFAULT_EPSILON, delta: int = DEFAULT_DELTA):
 
     dlen = len(df)
     n = []
