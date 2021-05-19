@@ -8,6 +8,8 @@ import subprocess
 import numpy as np
 import random
 
+import noise_mechanism as nm
+
 DEFAULT_DATA_DIRECTORY = "./tests/data"
 DEFAULT_FIPS = "36"  # New York
 DEFAULT_ITERATIONS = 100
@@ -46,18 +48,31 @@ def load(
     )
     return df
 
-def noisy_df(df: pd.DataFrame, iterations: int = 100):
-    
+def noisy_df(df: pd.DataFrame, iterations: int = 100, mechanism: str = "laplace", epsilon: int = 0.1):
+
     dlen = len(df)
     n = []
-    typer.echo(f"Applying DP noise on columns over {iterations} iterations")
-    with typer.progressbar(range(iterations)) as steps:
-        for _ in steps:
-          noisy_val = df.transitions.values*random.random()
-          n = np.vstack(noisy_val)
-        m = np.average(n, axis=0)
-        df['transitions']=pd.Series(m)
-        return df
+
+    if mechanism == "laplace":
+        typer.echo(f"Applying DP noise on columns over {iterations} iterations")
+        with typer.progressbar(range(iterations)) as steps:
+            for _ in steps:
+                noisy_val = df['transitions'].apply(nm.laplaceMechanism, args=(epsilon,))
+                n.append(noisy_val)
+            m = np.average(n, axis=0)
+            df['transitions']=pd.Series(m)
+            df['transitions'] = df['transitions'].round(0)
+    else:
+        typer.echo(f"Applying DP noise on columns over {iterations} iterations")
+        with typer.progressbar(range(iterations)) as steps:
+            for _ in steps:
+                noisy_val = df['transitions'].apply(nm.laplaceMechanism, args=(epsilon,1))      
+                n.append(noisy_val)
+            m = np.average(n, axis=0)
+            df['transitions']=pd.Series(m)
+            df['transitions'] = df['transitions'].round(0)
+
+    return df
 
 def call_r_model(df: pd.DataFrame, iterations: int):
     
@@ -65,7 +80,7 @@ def call_r_model(df: pd.DataFrame, iterations: int):
     with typer.progressbar(range(iterations)) as steps:
         for _ in steps:
             try:
-                subprocess.call (["Rscript", "--vanilla", "./src/spatial_seir.R"])
+                subprocess.call (["Rscript", "--vanilla", "./pipeline.R"])
             except Exception as e:
                 print(e)
                 exit(1)
