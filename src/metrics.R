@@ -23,6 +23,9 @@ run_metrics <- function(x){
    #importation rate
    import <- import_rate(x)
    
+   #prediction 
+   prediction <- prediction(x)
+   
    #output formatted as a tibble
    return(
       list(
@@ -41,7 +44,11 @@ run_metrics <- function(x){
             "avg_exposure_from_peak" = exposure$avg_exposure_from_peak
          ), 
          "Re" = Rep_number$Re,
-         "Mean_import_rate" = import
+         "Mean_import_rate" = import,
+         "Probabilty_infection" = prediction$prob_infection, 
+         "Predictability" = prediction$pred, 
+         "Synchrony" = prediction$spatial_synch
+         
       )
    )
    
@@ -80,7 +87,7 @@ rate_of_spread <- function(x){
    
    prop_epi <- as_tibble(y) %>%
       mutate(location = row_number()) %>%
-      gather("day", "value", `1`:`61`) %>%
+      gather("day", "value", `1`:`91`) %>%
       mutate(day = as.numeric(day)) %>%
       arrange(day) %>%
       group_by(location) %>%
@@ -178,4 +185,88 @@ import_rate<-function(x){
       tibble()%>%
       summarise(mean_imp = apply(total_import_rate, 1, function (x) mean(x)))%>%
       return()
-   }
+}
+
+#Probability of infection; predictability of an outbreak; spatial synchrony 
+
+prediction<-function(x){
+   inf1 <- x$compartments[x$Isidx,]
+   colnames(inf1) <- 1:ncol(inf1)
+   
+   infected1 <-inf1%>%
+      as_tibble()%>%
+      mutate(location = row_number())%>%
+      gather("day", "value1", `1`:`91`)%>%
+      mutate(day = as.numeric(day))%>%
+      arrange(day)
+   
+   inf2<-x$compartments[x$Iaidx,]
+   colnames(inf2) <- 1:ncol(inf2)
+   infected2 <-inf2%>%
+      as_tibble()%>% 
+      mutate(location = row_number())%>%
+      gather("day", "value2", `1`:`91`) %>%
+      mutate(day = as.numeric(day)) %>%
+      arrange(day)
+   
+   inf3<-x$compartments[x$obsidx,]
+   colnames(inf3) <- 1:ncol(inf3)
+   infected3 <-inf3%>%
+      as_tibble()%>%
+      mutate(location = row_number())%>%
+      gather("day", "value3", `1`:`91`) %>%
+      mutate(day = as.numeric(day)) %>%
+      arrange(day)
+   
+   infected<-  left_join(infected1,infected2)
+   infectedR<- left_join(infected, infected3)
+   
+   Infected<-infectedR%>%
+      mutate(value = value1 + value2 + value3)%>%
+      mutate(prevalence = value/ max(rowSums(x$pop)))%>%
+      group_by(day)%>%
+      mutate(sumV=sum(value))%>%
+      ungroup()%>%
+      group_by(location, day)%>%
+      mutate(Pi_t = value/ifelse(sumV == 0, 1, sumV))
+   
+   prob_infection<- Infected %>%
+      filter(Pi_t>0)%>%
+      select(location, day, Pi_t) %>%
+      filter(day == max(day))
+     
+      
+   # the variable Pi_t represents the probability that a given infected is at the location   i at time t
+   #%>%ggplot(aes(x = day, y = Pi_t))+  geom_line()+  facet_wrap(~location)
+   
+   similarity<-Infected%>%
+      group_by(location)%>%
+      filter(Pi_t>0)%>%
+      mutate(Hellinger = sum(sqrt(prod(max(Pi_t)))))
+   
+   pred <-similarity%>%
+      group_by(location, day)%>%
+      summarise(overlap = Hellinger * sum(sqrt(prod(max(prevalence)))))%>%
+      filter(overlap == max(overlap)) %>%
+      ungroup()%>%
+      group_by(location)%>%
+      filter(day == max(day))%>%
+      select(location, day)
+   
+   spatial_synch<-Infected %>%
+      rename(Is = value1, Ia = value2, obs = value3, Total_inf = value)%>%
+      pivot_wider(id_cols = day, names_from = location, values_from = Total_inf) %>%
+      cor()
+      
+     
+   
+      
+      
+   return(list(
+      "Probabilty_infection" = prob_infection, 
+      "Predictability" = pred, 
+      "Synchrony" = spatial_synch
+   ))
+   
+}
+
