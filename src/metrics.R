@@ -24,7 +24,7 @@ run_metrics <- function(x){
    import <- import_rate(x)
    
    #prediction 
-   prediction <- prediction(x)
+   pred <- prediction(x)
    
    #output formatted as a tibble
    return(
@@ -45,9 +45,9 @@ run_metrics <- function(x){
          ), 
          "Re" = Rep_number$Re,
          "Mean_import_rate" = import,
-         "Probabilty_infection" = prediction$prob_infection, 
-         "Predictability" = prediction$pred, 
-         "Synchrony" = prediction$spatial_synch
+         "Probabilty_infection" = pred$Probabilty_infection, 
+         "Predictability" = pred$Predictability, 
+         "Synchrony" = pred$Synchrony
          
       )
    )
