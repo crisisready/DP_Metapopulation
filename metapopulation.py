@@ -7,6 +7,7 @@ import typer
 import subprocess
 import numpy as np
 import random
+import os.path
 
 import noise_mechanism as nm
 
@@ -69,7 +70,7 @@ def noisy_df(df: pd.DataFrame, iterations: int = DEFAULT_ITERATIONS, mechanism: 
         typer.echo(f"Applying DP noise on columns over {iterations} iterations")
         with typer.progressbar(range(iterations)) as steps:
             for _ in steps:
-                noisy_val = df['transitions'].apply(nm.laplaceMechanism, args=(epsilon,1))      
+                noisy_val = df['transitions'].apply(nm.gaussianMechanism, args=(epsilon, delta))      
                 n.append(noisy_val)
             m = np.average(n, axis=0)
             df['transitions']=pd.Series(m)
@@ -83,7 +84,7 @@ def call_r_model(df: pd.DataFrame, iterations: int):
     with typer.progressbar(range(iterations)) as steps:
         for _ in steps:
             try:
-                subprocess.call (["Rscript", "--vanilla", "./pipeline.R"])
+                subprocess.call (["Rscript", "--vanilla", "--no-environ", "./pipeline.R"])
             except Exception as e:
                 print(e)
                 exit(1)
