@@ -23,6 +23,13 @@ run_metrics <- function(x){
    #importation rate
    import <- import_rate(x)
    
+   #Extracting cluster list
+   y_clust <- get_transition_matrix(x)
+   
+   #Clusters
+   clusters_combined_sum <- lapply(y_clust$period, get_clusters) %>% bind_rows
+   
+   
    #output formatted as a tibble
    return(
       list(
@@ -41,7 +48,8 @@ run_metrics <- function(x){
             "avg_exposure_from_peak" = exposure$avg_exposure_from_peak
          ), 
          "Re" = Rep_number$Re,
-         "Mean_import_rate" = import
+         "Mean_import_rate" = import,
+         "Spatial_Clusters" = clusters_combined_sum
       )
    )
    
@@ -59,7 +67,6 @@ calc_epidemic_size <- function(x){
       "asym" = asym_epi_size
    ))
 }
-
 
 # Reproduction numbers 
 
@@ -178,4 +185,59 @@ import_rate<-function(x){
       tibble()%>%
       summarise(mean_imp = apply(total_import_rate, 1, function (x) mean(x)))%>%
       return()
-   }
+}
+
+#Spatial Congruence of Clusters
+
+#Setting up variables for spatial congruence
+#Get transitions as dataframe for every 10 day period
+get_transition_matrix <- function(x){
+   y <- x$M_trans
+   
+   #create vector of length of list
+   y_sub <- 1:length(y) %>%
+      #split vector into a list of chunked vectors of size 10
+      split(ceiling(seq_along(.)/10)) %>%
+      #reduce indexed chunks
+      lapply(function(x) Reduce('+', y[x])) 
+   
+   clust_list <- lapply(seq_along(y_sub), function(i) {
+      # get matrix of non NA positions
+      pos <- which(!is.na(y_sub[[i]]), arr.ind=TRUE)
+      # return data.frame for given list item
+      data.frame(period=i,
+                 from_to=paste(rownames(y_sub[[i]])[pos[,1]], colnames(y_sub[[i]])[pos[,2]]),
+                 transitions=y_sub[[i]][pos])
+   })
+   
+   y_clust <- do.call(rbind, clust_list)
+   
+   y_clust <- separate(y_clust, from_to, into = c("From", "To"), sep = " (?=[^ ]+$)")
+   
+   return(y_clust)
+   
+}
+
+get_clusters <- function(x){
+   
+   adjacency_matrix <- y_clust %>% 
+      subset(From != To & period == x) %>%
+      group_by(From, To) %>%
+      summarise(transitions = sum(transitions, na.rm = T)) %>%
+      ungroup() %>%
+      setNames(c("from","to","weights")) %>%
+      spread(key=to,value=weights) %>% 
+      column_to_rownames("from") %>%
+      as.matrix() %>%
+      replace_na(0)
+   
+   g <- graph_from_adjacency_matrix(adjacency_matrix,"undirected",weighted=TRUE)
+   
+   clusters <- cluster_optimal(g,weights = E(g)$transitions)
+   
+   clusters_im <- cluster_infomap(g)
+   
+   clusters_combined_sum_im <- bind_cols("Counties"=clusters_im$names, "cluster"= clusters_im$membership, "type" = "infomap", "period" = x)
+   
+   return(clusters_combined_sum_im)
+}

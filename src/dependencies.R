@@ -42,7 +42,7 @@ lib_eval <- function(package){
 }
 
 #Dependencies for R 
-sapply(c("tidyverse","reshape2", "here", "bigrquery"), lib_eval)
+sapply(c("tidyverse","reshape2", "here", "bigrquery","igraph"), lib_eval)
 
 #load local packages
 source(here("src", "NY_model.R"))
