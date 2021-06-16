@@ -1,5 +1,4 @@
 # script for master metrics function along with all metrics 
-
 run_metrics <- function(x){
    
    #epidemic size
@@ -25,6 +24,9 @@ run_metrics <- function(x){
    
    #prediction 
    pred <- prediction(x)
+
+   #Cluster List
+   cluster_vals <- get_clusters(x)
    
    #output formatted as a tibble
    return(
@@ -47,8 +49,8 @@ run_metrics <- function(x){
          "Mean_import_rate" = import,
          "Probabilty_infection" = pred$Probabilty_infection, 
          "Predictability" = pred$Predictability, 
-         "Synchrony" = pred$Synchrony
-         
+         "Synchrony" = pred$Synchrony,
+         "Spatial_Clusters" = cluster_vals
       )
    )
    
@@ -66,7 +68,6 @@ calc_epidemic_size <- function(x){
       "asym" = asym_epi_size
    ))
 }
-
 
 # Reproduction numbers 
 
@@ -257,16 +258,78 @@ prediction<-function(x){
       rename(Is = value1, Ia = value2, obs = value3, Total_inf = value)%>%
       pivot_wider(id_cols = day, names_from = location, values_from = Total_inf) %>%
       cor()
-      
-     
-   
-      
-      
+  
    return(list(
       "Probabilty_infection" = prob_infection, 
       "Predictability" = pred, 
       "Synchrony" = spatial_synch
    ))
+   
+}
+                                 
+#Spatial Congruence of Clusters
+
+#Setting up variables for spatial congruence
+#Get transitions as dataframe for every 10 day period
+
+get_clusters <- function(x){
+   
+   get_transition_matrix <- function(x){
+      
+      y <- x$M_trans
+      
+      #create vector of length of list
+      y_sub <- 1:length(y) %>%
+         #split vector into a list of chunked vectors of size 10
+         split(ceiling(seq_along(.)/10)) %>%
+         #reduce indexed chunks
+         lapply(function(x) Reduce('+', y[x])) 
+      
+      clust_list <- lapply(seq_along(y_sub), function(i) {
+         # get matrix of non NA positions
+         pos <- which(!is.na(y_sub[[i]]), arr.ind=TRUE)
+         # return data.frame for given list item
+         data.frame(period=i,
+                    from_to=paste(rownames(y_sub[[i]])[pos[,1]], colnames(y_sub[[i]])[pos[,2]]),
+                    transitions=y_sub[[i]][pos])
+      })
+      
+      y_clust <- do.call(rbind, clust_list)
+      
+      y_clust <- separate(y_clust, from_to, into = c("From", "To"), sep = " (?=[^ ]+$)")
+      
+      return(y_clust)
+   }
+   
+   get_cluster_vals <- function(p){
+      
+      adjacency_matrix <- y_clust %>% 
+         subset(From != To & period == p) %>%
+         group_by(From, To) %>%
+         summarise(transitions = sum(transitions, na.rm = T)) %>%
+         ungroup() %>%
+         setNames(c("from","to","weights")) %>%
+         spread(key=to,value=weights) %>% 
+         column_to_rownames("from") %>%
+         as.matrix() %>%
+         replace_na(0)
+      
+      g <- graph_from_adjacency_matrix(adjacency_matrix,"undirected",weighted=TRUE)
+      
+      clusters <- cluster_optimal(g,weights = E(g)$transitions)
+      
+      clusters_im <- cluster_infomap(g)
+      
+      clusters_combined_sum_im <- bind_cols("Counties"=clusters_im$names, "cluster"= clusters_im$membership, "type" = "infomap", "period" = p)
+      
+      return(clusters_combined_sum_im)
+   }
+   
+   #Cluster Matrix
+   y_clust <- get_transition_matrix(x)
+   #Running function for clusters
+   clusters_combined_sum <- lapply(unique(y_clust$period), get_cluster_vals) %>% bind_rows
+   return(clusters_combined_sum)
    
 }
 

@@ -75,6 +75,7 @@ run_seir_model <- function(
     
   }
   
+  
   return(list("compartments" = x.save, 
               "pop" = pop.save, 
               "num_tsteps"= num_tsteps, 
@@ -96,7 +97,7 @@ run_seir_model <- function(
               "alphaidx" = 5*num_loc + 5,
               "Didx" = 5*num_loc + 6, 
               "M_loc" = M_loc,
-              "M_trans" = M ))
+              "M_trans" = M))
   
 }
 
