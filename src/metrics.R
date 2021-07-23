@@ -50,7 +50,8 @@ run_metrics <- function(x){
          "Probabilty_infection" = pred$Probabilty_infection, 
          "Predictability" = pred$Predictability, 
          "Synchrony" = pred$Synchrony,
-         "Spatial_Clusters" = cluster_vals
+         "Spatial_Clusters" = cluster_vals,
+         "risk_of_import" = get_risk(x)
       )
    )
    
@@ -333,3 +334,11 @@ get_clusters <- function(x){
    
 }
 
+#calculate risk of infection 
+get_risk <- function(x){
+   lapply(1:length(x$M_trans), 
+          function(day){
+             apply(apply(x$M_trans[[day]], 2, function(y) y/sum(y)), 2, function(y) y*((x$compartments[x$Iaidx,day]+x$compartments[x$Isidx,day])/x$pop[,day]))
+          }) %>%
+      return()
+}
