@@ -14,8 +14,8 @@ final_calc <- function(in_file_loc, out_file_loc, baseline_noise){
   #create data table of runs
   runs <- tibble("eps_file" = dir(in_file_loc)) %>%
     rowwise() %>%
-    mutate(eps = str_split(eps_file, "_")[[1]][2])
-  
+    mutate(eps = str_split(eps_file, "=")[[1]][2])
+  print(runs)
   runs <- lapply(
     runs$eps_file, 
     function(x){
@@ -28,8 +28,7 @@ final_calc <- function(in_file_loc, out_file_loc, baseline_noise){
     bind_rows() %>%
     right_join(runs, by = "eps_file") %>%
     rowwise() %>%
-    mutate(itr = str_split(itr_file, "_")[[1]][2] %>% str_split("\\.") %>% {.[[1]][1]})
-  
+    mutate(itr = str_split(itr_file, "=")[[1]][2] %>% str_split("\\.") %>% {.[[1]][1]})
   #check that there are the same number of iterations in each folder 
   check <- runs %>%
     group_by(eps_file) %>%
@@ -56,12 +55,14 @@ final_calc <- function(in_file_loc, out_file_loc, baseline_noise){
 itr_run <- function(baseline_noise, itr_num, runs, in_file_loc = in_file_loc, out_file_loc = out_file_loc){
   
   itr_list <- filter(runs, itr == itr_num) %>%
-    mutate(file_loc = paste0(in_file_loc,"//",eps_file,"//",itr_file))
+    mutate(file_loc = paste0(in_file_loc,"/",eps_file,"/",itr_file))
   
+  print(itr_list$file_loc)
   out <- lapply(
     itr_list$file_loc,
     function(x){
-      read_rds(x)$static_metrics %>% 
+      metrics <- read_rds(x)
+      metrics$static_metrics %>% 
         dplyr::select("obs_epi_size", "sym_epi_size", "asym_epi_size",
                       "R0", "rate_of_spread", "prop_counties_1_case",
                       "peak_epi_day", "peak_epi_size", "max_exposure_from_last_case",
