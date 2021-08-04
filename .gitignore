@@ -46,6 +46,4 @@ tests/*
 sandbox/*
 output/*
 *.icloud
-resources/.DS_Store
 .DS_Store
-data/.DS_Store
