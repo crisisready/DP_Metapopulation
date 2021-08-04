@@ -1,10 +1,10 @@
 #dependencies
 source("src/dependencies.R")
 
-for(itr_num in 1:as.numeric(iterations)){
+for(itr_num in 1:as.numeric(iterations =10)){
   
-  metrics <- run_seir_model() %>%
-    run_metrics()
+  seir_matrix <- run_seir_model()
+  metrics <- run_metrics(seir_matrix)
   
   #### Saving the output
   output_directory <- here(sprintf("data/seir-dp-metrics/noise_type=%s/ep=%s/", mechanism, epsilon))
@@ -15,7 +15,6 @@ for(itr_num in 1:as.numeric(iterations)){
   }
   
   #### Writing file within directory
-  write_rds(metrics, sprintf("%s/iterations=%s.rds",output_directory, itr_num))
+  write_rds(metrics, sprintf("%s/iteration=%s.rds",output_directory, itr_num))
   
 }
-

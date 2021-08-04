@@ -2,10 +2,11 @@
 
 source(here("src","utils.R"))
 
-create_seir_matrices <- function(mechanism, epsilon, iterations){
+create_seir_matrices <- function(mechanism = "laplace", epsilon = "0.1", itr_num){
   
   #### Loading data downloaded from GCS through metapopulation.py script
-  noisy_data_loc <- here(sprintf("./data/mob-dp/noise_type=%s/ep=%s", mechanism, epsilon), sprintf("iterations=%s.csv", iterations))
+  noisy_data_loc <- here(sprintf("./data/mob-dp/noise_type=%s/ep=%s", mechanism, epsilon), sprintf("iteration=%s.csv", itr_num))
+  print(noisy_data_loc)
   
   #### Pull data
   data<-read_csv(noisy_data_loc)

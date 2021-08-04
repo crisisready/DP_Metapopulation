@@ -15,7 +15,6 @@ final_calc <- function(in_file_loc, out_file_loc, baseline_noise){
   runs <- tibble("eps_file" = dir(in_file_loc)) %>%
     rowwise() %>%
     mutate(eps = str_split(eps_file, "=")[[1]][2])
-  print(runs)
   runs <- lapply(
     runs$eps_file, 
     function(x){
@@ -55,9 +54,8 @@ final_calc <- function(in_file_loc, out_file_loc, baseline_noise){
 itr_run <- function(baseline_noise, itr_num, runs, in_file_loc = in_file_loc, out_file_loc = out_file_loc){
   
   itr_list <- filter(runs, itr == itr_num) %>%
-    mutate(file_loc = paste0(in_file_loc,"/",eps_file,"/",itr_file))
+    mutate(file_loc = paste0(in_file_loc,"//",eps_file,"//",itr_file))
   
-  print(itr_list$file_loc)
   out <- lapply(
     itr_list$file_loc,
     function(x){
@@ -73,7 +71,7 @@ itr_run <- function(baseline_noise, itr_num, runs, in_file_loc = in_file_loc, ou
     {bind_cols(itr_list, .)}
   
   rsme_list <- filter(itr_list, eps != baseline_noise)
-  
+
   baseline <- filter(itr_list, eps == baseline_noise) %>% pull(file_loc)
   comp <- rsme_list$file_loc[1]
   
