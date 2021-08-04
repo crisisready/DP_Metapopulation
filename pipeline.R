@@ -1,7 +1,7 @@
 #dependencies
 source("src/dependencies.R")
 
-for(itr_num in 1:as.numeric(iterations =10)){
+for(itr_num in 1:as.numeric(iterations)){
   
   seir_matrix <- run_seir_model()
   metrics <- run_metrics(seir_matrix)

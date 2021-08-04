@@ -24,7 +24,7 @@ run_seir_model <- function(
   
   #transition matrix 
   #M <- read_rds(M_loc)
-  M <- create_seir_matrices(mechanism = "laplace", epsilon = "0.1", itr_num)
+  M <- create_seir_matrices(mechanism, epsilon, itr_num)
   
   # indices for each compartment + fixed parameters
   Sidx = seq(from =1, to = 5*num_loc, by = 5)
