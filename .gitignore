@@ -38,6 +38,13 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# Python virtual environment and cache
+.venv
+**/__pycache__
+
+# Visual Studio Code configuration
+.vscode
+
 # personal local files and sandbox
 resources/auth.yaml
 src/sandbox.R
