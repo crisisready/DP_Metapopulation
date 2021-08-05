@@ -67,6 +67,15 @@ The simulation is run by executing:
 
 ```bash
 $ poetry run python metapopulation.py simulate \
+    [--mechanism] \        # Noise type to be added. Current implementations support laplace and gaussian
+    [--epsilon] \          # Specify the privacy budget
+    [--iterations]         # The number of noisy iterations to run
+```
+
+This is *not* implemented, but susequent versions will directly generate noise data for different locations/time periods based on default noise type and privacy budget. The simulation can be run by executing:
+
+```bash
+$ poetry run python metapopulation.py simulate \
     [--fips state fips] \        # The state FIPS to filter down to, default to NY
     [--iterations count] \       # The number of noisy iterations to run
     [--start-date YYYY-MM-DD]  \ # The start date filter by, inclusive
