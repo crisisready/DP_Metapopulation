@@ -43,3 +43,7 @@ resources/auth.yaml
 src/sandbox.R
 __pycache__/*
 tests/*
+sandbox/*
+output/*
+*.icloud
+.DS_Store

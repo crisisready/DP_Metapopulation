@@ -45,6 +45,9 @@ lib_eval <- function(package){
 sapply(c("tidyverse","reshape2", "here", "bigrquery","igraph"), lib_eval)
 
 #load local packages
+source(here("src", "load_matrices.R"))
+#source(here("src", "camber_ETL.R"))
 source(here("src", "NY_model.R"))
 source(here("src", "metrics.R"))
 source(here("src", "utils.R"))
+source(here("src", "final_comp_calc.R"))

@@ -3,10 +3,12 @@ library(here)
 library(tidyverse)
 
 source(here('src', 'spatial_seir.R'))
+source(here('src', 'load_matrices.R'))
+
 
 run_seir_model <- function(
   census_pop = read_rds(here("resources", "nyc_census_data.rds")), 
-  M_loc = here("resources", "test_matrices.rds"),
+  #M_loc = here("resources", "test_matrices.rds"),
   seedid = c(24,41),
   num_tsteps = 90,
   beta = 0.8, #0.52 # transmission rate due to symptomatic individuals
@@ -21,7 +23,8 @@ run_seir_model <- function(
   num_loc = nrow(census_pop) # number of locations
   
   #transition matrix 
-  M <- read_rds(M_loc)
+  #M <- read_rds(M_loc)
+  M <- create_seir_matrices(mechanism, epsilon, itr_num)
   
   # indices for each compartment + fixed parameters
   Sidx = seq(from =1, to = 5*num_loc, by = 5)
@@ -96,7 +99,7 @@ run_seir_model <- function(
               "Zidx" = 5*num_loc + 4,
               "alphaidx" = 5*num_loc + 5,
               "Didx" = 5*num_loc + 6, 
-              "M_loc" = M_loc,
+              #"M_loc" = M_loc,
               "M_trans" = M))
   
 }

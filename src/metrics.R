@@ -26,7 +26,7 @@ run_metrics <- function(x){
    pred <- prediction(x)
 
    #Cluster List
-   cluster_vals <- get_clusters(x)
+   #cluster_vals <- get_clusters(x)
    
    #output formatted as a tibble
    return(
@@ -50,7 +50,7 @@ run_metrics <- function(x){
          "Probabilty_infection" = pred$Probabilty_infection, 
          "Predictability" = pred$Predictability, 
          "Synchrony" = pred$Synchrony,
-         "Spatial_Clusters" = cluster_vals,
+         #"Spatial_Clusters" = cluster_vals,
          "risk_of_import" = get_risk(x)
       )
    )
