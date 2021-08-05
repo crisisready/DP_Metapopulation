@@ -81,7 +81,8 @@ def noisy_df(df: pd.DataFrame, iterations: int = DEFAULT_ITERATIONS, mechanism: 
 
 def call_r_model(mechanism: str = DEFAULT_MECHANISM, epsilon: int = DEFAULT_EPSILON, iterations: int = DEFAULT_ITERATIONS):
     
-    typer.echo(f"Calling R model over {iterations}")
+    total = iterations
+    typer.echo(f"Calling R model over {iterations} iterations")
     with typer.progressbar(range(iterations)) as steps:
         try:
             subprocess.call (["Rscript", "--vanilla", "--no-environ", "./pipeline.R", "--args", "{}".format(mechanism), "{}".format(epsilon), "{}".format(iterations)])
