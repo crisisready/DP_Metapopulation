@@ -12,8 +12,9 @@ import os.path
 import noise_mechanism as nm
 
 DEFAULT_DATA_DIRECTORY = "./tests/data"
+DEFAULT_NOISE_DATA_DIRECTORY = "./data/mob-dp"
 DEFAULT_FIPS = "36"  # New York
-DEFAULT_ITERATIONS = 100
+DEFAULT_ITERATIONS = 1000
 DEFAULT_MECHANISM = "laplace"
 DEFAULT_EPSILON = 0.1
 DEFAULT_DELTA = 1
@@ -78,16 +79,16 @@ def noisy_df(df: pd.DataFrame, iterations: int = DEFAULT_ITERATIONS, mechanism: 
 
     return df
 
-def call_r_model(df: pd.DataFrame, iterations: int):
+def call_r_model(mechanism: str = DEFAULT_MECHANISM, epsilon: int = DEFAULT_EPSILON, iterations: int = DEFAULT_ITERATIONS):
     
-    typer.echo(f"Calling R model over {iterations}")
+    total = iterations
+    typer.echo(f"Calling R model over {iterations} iterations")
     with typer.progressbar(range(iterations)) as steps:
-        for _ in steps:
-            try:
-                subprocess.call (["Rscript", "--vanilla", "--no-environ", "./pipeline.R"])
-            except Exception as e:
-                print(e)
-                exit(1)
+        try:
+            subprocess.call (["Rscript", "--vanilla", "--no-environ", "./pipeline.R", "--args", "{}".format(mechanism), "{}".format(epsilon), "{}".format(iterations)])
+        except Exception as e:
+            print(e)
+            exit(1)
         time.sleep(0.05)
 
 
@@ -123,28 +124,36 @@ def pull(
 
 @app.command()
 def simulate(
-    data_path: str = typer.Argument(
-        default=DEFAULT_DATA_DIRECTORY,
-        help="The path to the data directory with data in Parquet format with Hive folders",
+    #data_path: str = typer.Argument(
+    #    default=DEFAULT_DATA_DIRECTORY,
+    #    help="The path to the data directory with data in Parquet format with Hive folders",
+    #),
+    #fips: str = typer.Option(
+    #    default=DEFAULT_FIPS,
+    #    help="The state to filter data to and from, default 36 for NY",
+    #),
+    mechanism: str = typer.Argument(
+        default=DEFAULT_MECHANISM,
+        help="The default noise type you would like to add to the main dataset. Current implementations only avaialble for 'laplace' and 'gaussian'",
     ),
-    fips: str = typer.Option(
-        default=DEFAULT_FIPS,
-        help="The state to filter data to and from, default 36 for NY",
+    epsilon: str = typer.Argument(
+        default=DEFAULT_EPSILON,
+        help="Specify the privacy budget",
     ),
-    iterations: int = typer.Option(
+    iterations: int = typer.Argument(
         default=DEFAULT_ITERATIONS,
         help="The number of noisy data outputs to create",
-    ),
-    start_date: datetime = typer.Option(
-        default=None,
-        formats=["%Y-%m-%d", "%Y%m%d"],
-        help="The start date to filter by, inclusive",
-    ),
-    end_date: datetime = typer.Option(
-        default=None,
-        formats=["%Y-%m-%d", "%Y%m%d"],
-        help="The end date to filter by, exclusive",
-    ),
+    )
+    #start_date: datetime = typer.Option(
+    #    default=None,
+    #    formats=["%Y-%m-%d", "%Y%m%d"],
+    #    help="The start date to filter by, inclusive",
+    #),
+    #end_date: datetime = typer.Option(
+    #    default=None,
+    #    formats=["%Y-%m-%d", "%Y%m%d"],
+    #    help="The end date to filter by, exclusive",
+    #)
 ):
     """
     Reads already noisy data, repeatedly adds more noise using the OpenDP libraries, then calls the R
@@ -154,9 +163,9 @@ def simulate(
 
     If no start or end dates are specified, it will use the whole directory
     """
-    df = load(data_path, fips, start_date, end_date)
-    df = noisy_df(df, iterations)
-    call_r_model(df, iterations)
+    #df = load(data_path, fips, start_date, end_date)
+    #df = noisy_df(df, iterations)
+    call_r_model(mechanism, epsilon, iterations)
 
 
 if __name__ == "__main__":
