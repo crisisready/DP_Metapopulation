@@ -89,7 +89,7 @@ rate_of_spread <- function(x){
    
    prop_epi <- as_tibble(y) %>%
       mutate(location = row_number()) %>%
-      gather("day", "value", `1`:`91`) %>%
+      gather("day", "value", `1`:ncol(y)) %>%
       mutate(day = as.numeric(day)) %>%
       arrange(day) %>%
       group_by(location) %>%
@@ -115,12 +115,12 @@ prop_counties_1_case <- function(x){
 #average time of peak of the epidemic
 peak_epi_day_size <- function(x){
    y <- x$compartments[x$obsidx,]
-   colnames(y) <- 1:91
+   colnames(y) <- 1:ncol(y)
    
    a <- y %>%
       as_tibble() %>%
       mutate(location = row_number()) %>%
-      gather("day", "value", `1`:`91`) %>%
+      gather("day", "value", `1`:ncol(y)) %>%
       group_by(location) %>%
       mutate(flag = (value == max(value) & value != 0)) %>%
       filter(flag) %>%
@@ -145,12 +145,12 @@ peak_epi_day_size <- function(x){
 
 exposure_window <- function(x){
    y <- x$compartments[x$obsidx,]
-   colnames(y) <- 1:91
+   colnames(y) <- 1:ncol(y)
    
    a <- y %>%
       as_tibble() %>%
       mutate(location = row_number()) %>%
-      gather("day", "value", `1`:`91`) %>%
+      gather("day", "value", `1`:ncol(y)) %>%
       group_by(location) %>%
       filter(value > 0) %>%
       summarise(min_day = min(day), max_day = max(day), peak_day = tail(day[which.max(value)])) %>%
@@ -179,9 +179,10 @@ exposure_window <- function(x){
 
 # Importation rate for each pair of county and for each time step
 import_rate<-function(x){
+   n <- ncol(x$compartments[x$obsidx,]) - 1
    y <- lapply(x$M_trans, function(x) x/ifelse(rowSums(x)==0,1,rowSums(x)))
    prop_inf <- x$compartments[x$obsidx,] /x$pop 
-   import_rate <- lapply(1:60, function(x) y[[x]] * prop_inf[,x+1] * 1000000)
+   import_rate <- lapply(1:n, function(x) y[[x]] * prop_inf[,x+1] * 1000000)
    total_import_rate<-sapply(import_rate, function(x)rowSums(x)) 
    total_import_rate%>%
       tibble()%>%
@@ -198,7 +199,7 @@ prediction<-function(x){
    infected1 <-inf1%>%
       as_tibble()%>%
       mutate(location = row_number())%>%
-      gather("day", "value1", `1`:`91`)%>%
+      gather("day", "value1", `1`:ncol(inf1))%>%
       mutate(day = as.numeric(day))%>%
       arrange(day)
    
@@ -207,7 +208,7 @@ prediction<-function(x){
    infected2 <-inf2%>%
       as_tibble()%>% 
       mutate(location = row_number())%>%
-      gather("day", "value2", `1`:`91`) %>%
+      gather("day", "value2", `1`:ncol(inf2)) %>%
       mutate(day = as.numeric(day)) %>%
       arrange(day)
    
@@ -216,7 +217,7 @@ prediction<-function(x){
    infected3 <-inf3%>%
       as_tibble()%>%
       mutate(location = row_number())%>%
-      gather("day", "value3", `1`:`91`) %>%
+      gather("day", "value3", `1`:ncol(inf3)) %>%
       mutate(day = as.numeric(day)) %>%
       arrange(day)
    
@@ -336,7 +337,8 @@ get_clusters <- function(x){
 
 #calculate risk of infection 
 get_risk <- function(x){
-   lapply(1:length(x$M_trans), 
+   n <- ncol(x$compartments[x$obsidx,])
+   lapply(1:n, 
           function(day){
              apply(apply(x$M_trans[[day]], 2, function(y) y/sum(y)), 2, function(y) y*((x$compartments[x$Iaidx,day]+x$compartments[x$Isidx,day])/x$pop[,day]))
           }) %>%

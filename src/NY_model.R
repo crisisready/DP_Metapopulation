@@ -10,14 +10,14 @@ run_seir_model <- function(
   census_pop = read_rds(here("resources", "nyc_census_data.rds")), 
   #M_loc = here("resources", "test_matrices.rds"),
   seedid = c(24,41),
-  num_tsteps = 90,
+  num_tsteps = 500,
   beta = 0.8, #0.52 # transmission rate due to symptomatic individuals
   mu = 0.5, # the multiplicative factor reducing the transmission rate of asymptomatic individuals
   theta = 1, # mult. factor, which is >1 to reflect underreporting of human movement
   zeta = 3.6, # average latency period
-  alpha = 0.65, # fraction of documented (or symptomatic) infections
+  alpha = 0.01, # fraction of documented (or symptomatic) infections
   delta = 3.14, # average duration of infection
-  n_inf = 20 # number of starting exposed
+  n_inf = 0.0002 # number of starting exposed
 ){
   #initialize
   num_loc = nrow(census_pop) # number of locations
@@ -51,7 +51,7 @@ run_seir_model <- function(
   seedid  = c(24, 41) #index of locations to seed
   
   x[Eidx] = rep(0, num_loc)
-  x[((seedid - 1)*5)+2] = n_inf # seed 20 infected in latent compartment, in metapopulations defined by seedid
+  x[((seedid - 1)*5)+2] = round(pop[seedid]*n_inf,0) # seed 20 infected in latent compartment, in metapopulations defined by seedid
   x[Sidx] = pop -  x[Eidx]   # everyone except 1 susceptible in the beginning
   x[Isidx] <- rep(0, num_loc)
   x[Iaidx] = rep(0,num_loc)

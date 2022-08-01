@@ -54,3 +54,9 @@ sandbox/*
 output/*
 *.icloud
 .DS_Store
+*.rds
+*.csv
+*.parquet
+*_SUCCESS
+src/NY_model_2.R
+final_plot.R

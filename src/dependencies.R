@@ -33,7 +33,7 @@ lib_eval <- function(package){
   }else{
     
     message(paste(package, " not found in system, installing and initializing..."))
-    install.packages(as.character(package), repos='http://cran.us.r-project.org')
+    install.packages(as.character(package), repos='http://cran.us.r-project.org', type = "binary")
     library(package, character.only = T)
     message(paste(package, " installed and initialized!"))
     
@@ -42,7 +42,7 @@ lib_eval <- function(package){
 }
 
 #Dependencies for R 
-sapply(c("tidyverse","reshape2", "here", "bigrquery","igraph"), lib_eval)
+sapply(c("tidyverse","reshape2", "here", "bigrquery","igraph", "lubridate"), lib_eval)
 
 #load local packages
 source(here("src", "load_matrices.R"))
