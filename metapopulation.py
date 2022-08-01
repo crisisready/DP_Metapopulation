@@ -36,7 +36,7 @@ app = typer.Typer()
 
 
 def load(
-    data_dir: str = DEFAULT_DATA_DIRECTORY, fips: str = DEFAULT_FIPS, start_date: datetime, end_date: datetime
+    data_dir: str = DEFAULT_DATA_DIRECTORY, fips: str = DEFAULT_FIPS, start_date: datetime = DEFAULT_START_DATE, end_date: datetime = DEFAULT_END_DATE
 ) -> pd.DataFrame:
     """
     Reads data from the data directory, assuming that the format is a bunch of subdirectories
